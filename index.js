@@ -6,6 +6,8 @@ const cors = require('cors');
 const PORT = 8000;
 const cookieParser = require('cookie-parser');
 
+const authRoutes = require('./routes/Auth.js');
+
 require('dotenv').config();
 require('./db')
 
@@ -24,6 +26,8 @@ app.use(
     })
 );
 app.use(cookieParser());
+
+app.use('/auth',authRoutes);
 
 app.get('/', (req, res) => {
     res.json({ message: 'The API is working' });
