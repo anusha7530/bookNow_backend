@@ -74,6 +74,14 @@ router.post("/login", async (req, res, next) => {
   );
 });
 
+router.get("/checklogin", authTokenHandler, async (req, res) => {
+  res.json({
+    userId: req.userId,
+    ok: true,
+    message: "User authenticated successfully",
+  });
+});
+
 router.use(errorHandler);
 
 module.exports = router;
