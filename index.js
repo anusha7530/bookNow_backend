@@ -7,6 +7,7 @@ const PORT = 8000;
 const cookieParser = require('cookie-parser');
 
 const authRoutes = require('./routes/Auth.js');
+const adminRoutes = require('./routes/Admin.js');
 
 require('dotenv').config();
 require('./db')
@@ -28,6 +29,7 @@ app.use(
 app.use(cookieParser());
 
 app.use('/auth',authRoutes);
+app.use('/admin',adminRoutes);
 
 app.get('/', (req, res) => {
     res.json({ message: 'The API is working' });
