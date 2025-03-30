@@ -31,16 +31,18 @@ const movieSchema = new mongoose.Schema({
   },
   cast: [
     {
-      actorName: String,
-      role: String,
-      imgURL: String,
+      celebtype: String,
+      celebname: String,
+      celebrole: String,
+      celebimage: String,
     },
   ],
   crew: [
     {
-      memberName: String,
-      role: String,
-      imgURL: String,
+      celebtype: String,
+      celebname: String,
+      celebrole: String,
+      celebimage: String,
     },
   ],
 });
