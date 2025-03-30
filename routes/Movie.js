@@ -55,7 +55,7 @@ router.post("/createmovie", adminTokenHandler, async (req, res, next) => {
 });
 router.post("/addcelebtomovie", adminTokenHandler, async (req, res, next) => {
   try {
-    const { movieId, celebtype, celebname, celebrole, celebimage } = req.body;
+    const { movieId, celebType, celebName, celebRole, celebImage } = req.body;
     const movie = await Movie.findById(movieId);
     if (!movie) {
       return res.status(404).json({
@@ -64,12 +64,12 @@ router.post("/addcelebtomovie", adminTokenHandler, async (req, res, next) => {
       });
     }
     const newCeleb = {
-      celebtype,
-      celebname,
-      celebrole,
-      celebimage,
+      celebType,
+      celebName,
+      celebRole,
+      celebImage,
     };
-    if (celebtype === "cast") {
+    if (celebType === "cast") {
       movie.cast.push(newCeleb);
     } else {
       movie.crew.push(newCeleb);
@@ -126,9 +126,14 @@ router.post(
       screen.movieSchedules.push({
         movieId,
         showTime,
-        notavailableseats:[],
-        showDate
-      })
+        notAvailableSeats: [],
+        showDate,
+      });
+      await screen.save();
+      res.status(201).json({
+        ok: true,
+        message: "Movies added successfully",
+      });
     } catch (err) {
       next(err);
     }
@@ -137,24 +142,122 @@ router.post(
 
 router.post("/bookticket", authTokenHandler, async (req, res, next) => {
   try {
+    const {
+      showTime,
+      showDate,
+      movieId,
+      screenId,
+      seats,
+      totalPrice,
+      paymentId,
+      paymentType,
+    } = req.body;
+
+    //payment id verification(future)
+
+    const screen = await Screen.findById(screenId);
+    if (!screen) {
+      return res.status(404).json({
+        ok: false,
+        message: "Screen not found",
+      });
+    }
+    const movieSchedule = screen.movieSchedules.find(
+      (schedule) =>
+        schedule.movieId === movieId &&
+        schedule.showTime === showTime &&
+        schedule.showDate === showDate
+    );
+
+    if (!movieSchedule) {
+      return res.status(404).json({
+        ok: false,
+        message: "Movie schedule not found",
+      });
+    }
+
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({
+        ok: false,
+        message: "User not found",
+      });
+    }
+
+    const newBooking = new Booking({
+      userId: req.userId,
+      showTime,
+      showDate,
+      movieId,
+      screenId,
+      seats,
+      totalPrice,
+      paymentId,
+      paymentType,
+    });
+    await newBooking.save();
+
+    const seatIds = seats.map((seat) => seat.seatId);
+
+    movieSchedule.notAvailableSeats.push(...seatIds);
+    await screen.save();
+
+    user.bookings.push(newBooking._id);
+    await user.save();
+    res.status(201).json({
+      ok: true,
+      message: "Booking successfully",
+    });
   } catch (err) {
     next(err);
   }
 });
 router.get("/movies", async (req, res, next) => {
   try {
+    const movies = await Movie.find();
+    res.status(200).json({
+      ok: true,
+      data: movies,
+      message: "Movies retrieved successfully",
+    });
   } catch (err) {
     next(err);
   }
 });
 router.get("/movies/:id", async (req, res, next) => {
   try {
+    const movieId = req.params.id;
+    const movie = await Movie.findById(movieId);
+    if (!movie) {
+      return res.status(404).json({
+        ok: false,
+        message: "Movie not found",
+      });
+    }
+    res.status(200).json({
+      ok: true,
+      data: movie,
+      message: "Movie  retrieved successfully",
+    });
   } catch (err) {
     next(err);
   }
 });
 router.get("/screensbycity", async (req, res, next) => {
   try {
+    const city = req.body.city;
+    const screens = await Screen.find({ city });
+    if (!screens || screens.length === 0) {
+      return res.status(404).json({
+        ok: false,
+        message: "No screens found in the specific city",
+      });
+    }
+    res.status(200).json({
+      ok: true,
+      data: screens,
+      message: "Screens retrieved successfully",
+    });
   } catch (err) {
     next(err);
   }
