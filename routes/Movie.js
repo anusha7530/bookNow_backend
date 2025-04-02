@@ -32,8 +32,8 @@ router.post("/createmovie", adminTokenHandler, async (req, res, next) => {
       landscapeImgUrl,
       rating,
       genre,
-      durattion,
-    } = req.body();
+      duration,
+    } = req.body;
 
     const newMovie = new Movie({
       title,
@@ -42,7 +42,7 @@ router.post("/createmovie", adminTokenHandler, async (req, res, next) => {
       landscapeImgUrl,
       rating,
       genre,
-      durattion,
+      duration,
     });
     await newMovie.save();
     res.status(201).json({

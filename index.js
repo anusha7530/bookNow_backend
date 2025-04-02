@@ -9,6 +9,7 @@ const cookieParser = require('cookie-parser');
 const authRoutes = require('./routes/Auth.js');
 const adminRoutes = require('./routes/Admin.js');
 const movieRoutes = require('./routes/Movie.js');
+const imageuploadRoutes = require('./routes/imageUploadRoutes.js');
 
 require('dotenv').config();
 require('./db')
@@ -32,6 +33,7 @@ app.use(cookieParser());
 app.use('/auth',authRoutes);
 app.use('/admin',adminRoutes);
 app.use('/movie',movieRoutes);
+app.use('/image',imageuploadRoutes);
 
 app.get('/', (req, res) => {
     res.json({ message: 'The API is working' });
