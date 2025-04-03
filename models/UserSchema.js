@@ -20,6 +20,10 @@ const userSchema = new mongoose.Schema(
       type: Array,
       default: [],
     },
+    city: {
+      type: String,
+      required: true,
+    },
   },
   {
     timestamps: true,

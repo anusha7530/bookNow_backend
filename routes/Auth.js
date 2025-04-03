@@ -22,7 +22,7 @@ function createResponse(ok, message, data) {
 
 router.post("/register", async (req, res, next) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password,city } = req.body;
     const existingUser = await User.findOne({ email: email });
     if (existingUser) {
       return res
@@ -34,6 +34,7 @@ router.post("/register", async (req, res, next) => {
       name,
       password,
       email,
+      city
     });
 
     await newUser.save(); 
