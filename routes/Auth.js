@@ -22,7 +22,7 @@ function createResponse(ok, message, data) {
 
 router.post("/register", async (req, res, next) => {
   try {
-    const { name, email, password,city } = req.body;
+    const { name, email, password, city } = req.body;
     const existingUser = await User.findOne({ email: email });
     if (existingUser) {
       return res
@@ -34,13 +34,28 @@ router.post("/register", async (req, res, next) => {
       name,
       password,
       email,
-      city
+      city,
     });
 
-    await newUser.save(); 
+    await newUser.save();
     res.status(201).json(createResponse(true, "User registered successfully"));
   } catch (err) {
-    next(err); 
+    next(err);
+  }
+});
+
+router.post("/changeCity", authTokenHandler, async (req, res, next) => {
+  const { city } = req.body;
+  const user = await User.findOne({ _id: req.userId });
+
+  if (!user) {
+    return res.status(400).json(createResponse(false, "Invalid credentials"));
+  } else {
+    user.city = city;
+    await user.save();
+    return res
+      .status(200)
+      .json(createResponse(true, "City changed successfully"));
   }
 });
 
@@ -57,12 +72,12 @@ router.post("/login", async (req, res, next) => {
   }
 
   const authToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, {
-    expiresIn: "10m",
+    expiresIn: "50m",
   });
   const refreshToken = jwt.sign(
     { userId: user._id },
     process.env.JWT_REFRESH_SECRET_KEY,
-    { expiresIn: "30m" }
+    { expiresIn: "60m" }
   );
   res.cookie("authToken", authToken, { httpOnly: true });
   res.cookie("refreshToken", refreshToken, { httpOnly: true });
@@ -81,6 +96,24 @@ router.get("/checklogin", authTokenHandler, async (req, res) => {
     ok: true,
     message: "User authenticated successfully",
   });
+});
+
+router.get("/logout", async (req, res) => {
+  res.clearCookie("authToken");
+  res.clearCookie("refreshToken");
+  res.json({
+    ok: true,
+    message: "User logged out successfully",
+  });
+});
+
+router.get("/getuser", authTokenHandler, async (req, res) => {
+  const user = await User.findOne({ _id: req.userId });
+  if (!user) {
+    return res.status(400).json(createResponse(false, "Invalid credentials"));
+  } else {
+    return res.status(200).json(createResponse(true, "User found", user));
+  }
 });
 
 router.use(errorHandler);
