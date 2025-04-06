@@ -80,6 +80,15 @@ router.get("/checklogin", adminTokenHandler, async (req, res) => {
   });
 });
 
+router.get("/logout", async (req, res) => {
+  res.clearCookie("adminAuthToken");
+  res.json({
+    ok: true,
+    message: "Admin logged out successfully",
+  });
+});
+
+
 router.use(errorHandler);
 
 module.exports = router;
