@@ -15,7 +15,7 @@ require('dotenv').config();
 require('./db')
 
 app.use(bodyParser.json());
-const allowedOrigins = ['http://localhost:3000'];
+const allowedOrigins = ['http://localhost:3000','http://localhost:3001'];
 app.use(
     cors({
         origin: function (origin, callback) {

@@ -25,11 +25,18 @@ const screenSchema = new mongoose.Schema({
     {
       movieId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Movie", 
+        ref: "Movie",
         required: true,
       },
       showTime: String,
-      notAvailableSeats: [String],
+      notAvailableSeats: [
+        {
+          row: String,
+          col: Number,
+          seat_id: String,
+          price: Number,
+        },
+      ],
       showDate: Date,
     },
   ],
