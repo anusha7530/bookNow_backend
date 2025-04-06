@@ -361,6 +361,27 @@ router.get(
   }
 );
 
+router.get('/getuserbookings' , authTokenHandler , async (req , res , next) => {
+  try {
+      const user = await User.findById(req.userId).populate('bookings');
+      if(!user){
+          return res.status(404).json(createResponse(false, 'User not found', null));
+      }
+
+      let bookings = [];
+
+      for(let i = 0 ; i < user.bookings.length ; i++){
+          let bookingobj = await Booking.findById(user.bookings[i]._id);
+          bookings.push(bookingobj);
+      }
+
+      res.status(200).json(createResponse(true, 'User bookings retrieved successfully', bookings));
+
+  } catch (err) {
+      next(err); 
+  }
+})
+
 router.use(errorHandler);
 
 module.exports = router;
