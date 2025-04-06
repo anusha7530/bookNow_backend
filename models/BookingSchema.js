@@ -19,6 +19,14 @@ const bookingSchema = new mongoose.Schema({
     ref: "Screen",
     required: true,
   },
+  movieName:{
+    type: String,
+    required:true,
+  },
+  screenName:{
+    type: String,
+    required:true,
+  },
   seats: [
     {
       row: {

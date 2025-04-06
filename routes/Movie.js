@@ -147,6 +147,8 @@ router.post("/bookticket", authTokenHandler, async (req, res, next) => {
       showDate,
       movieId,
       screenId,
+      movieName,
+      screenName,
       seats,
       totalPrice,
       paymentId,
@@ -163,7 +165,6 @@ router.post("/bookticket", authTokenHandler, async (req, res, next) => {
       });
     }
     const movieSchedule = screen.movieSchedules.find((schedule) => {
-      console.log(schedule);
       let showDate1 = new Date(schedule.showDate);
       let showDate2 = new Date(showDate);
       if (
@@ -199,6 +200,8 @@ router.post("/bookticket", authTokenHandler, async (req, res, next) => {
       showDate,
       movieId,
       screenId,
+      movieName,
+      screenName,
       seats,
       totalPrice,
       paymentId,

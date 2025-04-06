@@ -38,8 +38,8 @@ function checkAuthToken(req, res, next) {
               { expiresIn: "60m" }
             );
 
-            res.cookie("authToken", newAuthToken, { httpOnly: true, secure:true, sameSite:'None' });
-            res.cookie("refreshToken", newRefreshToken, { httpOnly: true, secure:true, sameSite:'None'});
+            res.cookie("authToken", newAuthToken, { httpOnly: true });
+            res.cookie("refreshToken", newRefreshToken, { httpOnly: true });
 
             req.userId = refreshDecoded.userId;
             req.ok = true;
