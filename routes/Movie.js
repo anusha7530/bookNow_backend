@@ -162,12 +162,21 @@ router.post("/bookticket", authTokenHandler, async (req, res, next) => {
         message: "Screen not found",
       });
     }
-    const movieSchedule = screen.movieSchedules.find(
-      (schedule) =>
-        schedule.movieId === movieId &&
+    const movieSchedule = screen.movieSchedules.find((schedule) => {
+      console.log(schedule);
+      let showDate1 = new Date(schedule.showDate);
+      let showDate2 = new Date(showDate);
+      if (
+        showDate1.getDay() === showDate2.getDay() &&
+        showDate1.getMonth() === showDate2.getMonth() &&
+        showDate1.getFullYear() === showDate2.getFullYear() &&
         schedule.showTime === showTime &&
-        schedule.showDate === showDate
-    );
+        schedule.movieId == movieId
+      ) {
+        return true;
+      }
+      return false;
+    });
 
     if (!movieSchedule) {
       return res.status(404).json({
@@ -197,9 +206,7 @@ router.post("/bookticket", authTokenHandler, async (req, res, next) => {
     });
     await newBooking.save();
 
-    const seatIds = seats.map((seat) => seat.seatId);
-
-    movieSchedule.notAvailableSeats.push(...seatIds);
+    movieSchedule.notAvailableSeats.push(...seats);
     await screen.save();
 
     user.bookings.push(newBooking._id);
@@ -263,8 +270,10 @@ router.get("/screensbycity/:city", async (req, res, next) => {
   }
 });
 
-router.get('/screensbymovieschedule/:city/:date/:movieid', async (req, res, next) => {
-  try {
+router.get(
+  "/screensbymovieschedule/:city/:date/:movieid",
+  async (req, res, next) => {
+    try {
       const city = req.params.city.toLowerCase();
       const date = req.params.date;
       const movieId = req.params.movieid;
@@ -272,67 +281,85 @@ router.get('/screensbymovieschedule/:city/:date/:movieid', async (req, res, next
       const screens = await Screen.find({ city });
 
       if (!screens || screens.length === 0) {
-          return res.status(404).json(createResponse(false, 'No screens found in the specified city', null));
+        return res
+          .status(404)
+          .json(
+            createResponse(
+              false,
+              "No screens found in the specified city",
+              null
+            )
+          );
       }
 
       let temp = [];
-      const filteredScreens = screens.forEach(screen => {
-          screen.movieSchedules.forEach(schedule => {
-              let showDate = new Date(schedule.showDate);
-              let bodyDate = new Date(date);
-              if (showDate.getDay() === bodyDate.getDay() &&
-                  showDate.getMonth() === bodyDate.getMonth() &&
-                  showDate.getFullYear() === bodyDate.getFullYear() &&
-                  schedule.movieId == movieId) {
-                  temp.push(
-                      screen
-                  );
-              }
-          })
-      }
-      );
+      const filteredScreens = screens.forEach((screen) => {
+        screen.movieSchedules.forEach((schedule) => {
+          let showDate = new Date(schedule.showDate);
+          let bodyDate = new Date(date);
+          if (
+            showDate.getDay() === bodyDate.getDay() &&
+            showDate.getMonth() === bodyDate.getMonth() &&
+            showDate.getFullYear() === bodyDate.getFullYear() &&
+            schedule.movieId == movieId
+          ) {
+            temp.push(screen);
+          }
+        });
+      });
 
-      res.status(200).json(createResponse(true, 'Screens retrieved successfully', temp));
-
-  } catch (err) {
-      next(err); 
+      res
+        .status(200)
+        .json(createResponse(true, "Screens retrieved successfully", temp));
+    } catch (err) {
+      next(err);
+    }
   }
-});
+);
 
-router.get('/schedulebymovie/:screenid/:date/:movieid', async (req, res, next) => {
-  const screenId = req.params.screenid;
-  const date = req.params.date;
-  const movieId = req.params.movieid;
+router.get(
+  "/schedulebymovie/:screenid/:date/:movieid",
+  async (req, res, next) => {
+    const screenId = req.params.screenid;
+    const date = req.params.date;
+    const movieId = req.params.movieid;
 
-  const screen = await Screen.findById(screenId);
+    const screen = await Screen.findById(screenId);
 
-  if (!screen) {
-      return res.status(404).json(createResponse(false, 'Screen not found', null));
-  }
+    if (!screen) {
+      return res
+        .status(404)
+        .json(createResponse(false, "Screen not found", null));
+    }
 
-  const movieSchedules = screen.movieSchedules.filter(schedule => {
+    const movieSchedules = screen.movieSchedules.filter((schedule) => {
       let showDate = new Date(schedule.showDate);
       let bodyDate = new Date(date);
-      if (showDate.getDay() === bodyDate.getDay() &&
-          showDate.getMonth() === bodyDate.getMonth() &&
-          showDate.getFullYear() === bodyDate.getFullYear() &&
-          schedule.movieId == movieId) {
-          return true;
+      if (
+        showDate.getDay() === bodyDate.getDay() &&
+        showDate.getMonth() === bodyDate.getMonth() &&
+        showDate.getFullYear() === bodyDate.getFullYear() &&
+        schedule.movieId == movieId
+      ) {
+        return true;
       }
       return false;
-  });
+    });
 
-  if (!movieSchedules) {
-      return res.status(404).json(createResponse(false, 'Movie schedule not found', null));
+    if (!movieSchedules) {
+      return res
+        .status(404)
+        .json(createResponse(false, "Movie schedule not found", null));
+    }
+
+    res.status(200).json(
+      createResponse(true, "Movie schedule retrieved successfully", {
+        screen,
+        movieSchedulesforDate: movieSchedules,
+      })
+    );
   }
-
-  res.status(200).json(createResponse(true, 'Movie schedule retrieved successfully', {
-      screen,
-      movieSchedulesforDate: movieSchedules
-  }));
-
-});
-
+);
 
 router.use(errorHandler);
 
