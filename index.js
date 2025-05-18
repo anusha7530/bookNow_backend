@@ -3,7 +3,7 @@ const app = express();
 
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const PORT = 8000;
+const PORT = process.env.PORT || 8000;
 const cookieParser = require('cookie-parser');
 
 const authRoutes = require('./routes/Auth.js');
