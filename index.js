@@ -15,7 +15,7 @@ require('dotenv').config();
 require('./db')
 
 app.use(bodyParser.json());
-const allowedOrigins = [process.env.FRONTEND_URL,process.env.ADMIN_URL];
+const allowedOrigins = ['https://book-now-admin.vercel.app'];
 app.use(
     cors({
         origin: function (origin, callback) {
