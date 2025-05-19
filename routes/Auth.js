@@ -79,13 +79,16 @@ router.post("/login", async (req, res, next) => {
     process.env.JWT_REFRESH_SECRET_KEY,
     { expiresIn: "60m" }
   );
-  res.cookie("authToken", authToken, { httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "None"
-    });
-  res.cookie("refreshToken", refreshToken, { httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "None"});
+  res.cookie("authToken", authToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "None",
+  });
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "None",
+  });
 
   res.status(200).json(
     createResponse(true, "Login successful", {
@@ -104,8 +107,16 @@ router.get("/checklogin", authTokenHandler, async (req, res) => {
 });
 
 router.get("/logout", async (req, res) => {
-  res.clearCookie("authToken");
-  res.clearCookie("refreshToken");
+  res.clearCookie("authToken", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "None",
+  });
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "None",
+  });
   res.json({
     ok: true,
     message: "User logged out successfully",

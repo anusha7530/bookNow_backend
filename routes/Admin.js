@@ -66,7 +66,7 @@ router.post("/login", async (req, res, next) => {
     res.cookie("adminAuthToken", adminAuthToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "None"
+      sameSite: "None",
     });
     res
       .status(200)
@@ -85,7 +85,11 @@ router.get("/checklogin", adminTokenHandler, async (req, res) => {
 });
 
 router.get("/logout", async (req, res) => {
-  res.clearCookie("adminAuthToken");
+  res.clearCookie("adminAuthToken", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "None",
+  });
   res.json({
     ok: true,
     message: "Admin logged out successfully",
