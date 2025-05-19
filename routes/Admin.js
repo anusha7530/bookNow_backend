@@ -63,7 +63,11 @@ router.post("/login", async (req, res, next) => {
       { expiresIn: "10m" }
     );
 
-    res.cookie("adminAuthToken", adminAuthToken, { httpOnly: true });
+    res.cookie("adminAuthToken", adminAuthToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "None"
+    });
     res
       .status(200)
       .json(createResponse(true, "Admin login successful", { adminAuthToken }));
@@ -87,7 +91,6 @@ router.get("/logout", async (req, res) => {
     message: "Admin logged out successfully",
   });
 });
-
 
 router.use(errorHandler);
 

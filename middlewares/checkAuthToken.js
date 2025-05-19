@@ -5,12 +5,10 @@ function checkAuthToken(req, res, next) {
   const refreshToken = req.cookies.refreshToken;
 
   if (!authToken || !refreshToken) {
-    return res
-      .status(401)
-      .json({
-        message: "Authentication failed: No authToken or refreshToken provided",
-        ok: false,
-      });
+    return res.status(401).json({
+      message: "Authentication failed: No authToken or refreshToken provided",
+      ok: false,
+    });
   }
 
   jwt.verify(authToken, process.env.JWT_SECRET_KEY, (err, decoded) => {
@@ -20,12 +18,10 @@ function checkAuthToken(req, res, next) {
         process.env.REFRESH_TOKEN_SECRET,
         (refreshErr, refreshDecoded) => {
           if (refreshErr) {
-            return res
-              .status(401)
-              .json({
-                message: "Authentication failed: Both tokens are invalid",
-                ok: false,
-              });
+            return res.status(401).json({
+              message: "Authentication failed: Both tokens are invalid",
+              ok: false,
+            });
           } else {
             const newAuthToken = jwt.sign(
               { userId: refreshDecoded.userId },
@@ -38,8 +34,16 @@ function checkAuthToken(req, res, next) {
               { expiresIn: "60m" }
             );
 
-            res.cookie("authToken", newAuthToken, { httpOnly: true });
-            res.cookie("refreshToken", newRefreshToken, { httpOnly: true });
+            res.cookie("authToken", newAuthToken, {
+              httpOnly: true,
+              secure: process.env.NODE_ENV === "production",
+              sameSite: "None"
+            });
+            res.cookie("refreshToken", newRefreshToken, {
+              httpOnly: true,
+              secure: process.env.NODE_ENV === "production",
+              sameSite: "None"
+            });
 
             req.userId = refreshDecoded.userId;
             req.ok = true;
